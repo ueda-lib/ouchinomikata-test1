@@ -4,27 +4,23 @@
 (function(){
   var PASSWORD = "gaiju2024";
   var KEY = "gaiju_auth";
-  if(sessionStorage.getItem(KEY) === "1") return;
 
-  // ページ全体を隠す
+  // まず全体を隠す（returnより前）
   document.documentElement.style.visibility = "hidden";
 
-  // パスワード画面を上に重ねて表示
+  // 認証済みならそのまま表示して終了
+  if(sessionStorage.getItem(KEY) === "1"){
+    document.documentElement.style.visibility = "visible";
+    return;
+  }
+
   function showLock(){
     var overlay = document.createElement("div");
     overlay.id = "pw-overlay";
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;";
-    overlay.innerHTML = '<div style="text-align:center;padding:40px;max-width:320px;">'
-      + '<div style="font-size:48px;margin-bottom:16px;">🔒</div>'
-      + '<h2 style="font-size:20px;margin-bottom:8px;color:#481200;">閲覧にはパスワードが必要です</h2>'
-      + '<p style="font-size:13px;color:#666;margin-bottom:24px;">担当者からパスワードをお受け取りください</p>'
-      + '<input id="pw-input" type="password" placeholder="パスワードを入力" style="width:100%;padding:12px;border:2px solid #F5C4B3;border-radius:8px;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:12px;">'
-      + '<div id="pw-error" style="color:#D32F2F;font-size:13px;margin-bottom:12px;display:none;">パスワードが違います</div>'
-      + '<button id="pw-btn" style="width:100%;padding:14px;background:#F55C2B;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;">確認する</button>'
-      + '</div>';
+    overlay.innerHTML = '<div style="text-align:center;padding:40px;max-width:320px;"><div style="font-size:48px;margin-bottom:16px;">&#128274;</div><h2 style="font-size:20px;margin-bottom:8px;color:#481200;">&#38281;&#35229;&#12395;&#12399;&#12497;&#12473;&#12527;&#12540;&#12489;&#12364;&#24517;&#35201;&#12391;&#12377;</h2><p style="font-size:13px;color:#666;margin-bottom:24px;">&#25285;&#24403;&#32773;&#12363;&#12425;&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#12362;&#21463;&#12369;&#21462;&#12426;&#12367;&#12384;&#12373;&#12356;</p><input id="pw-input" type="password" placeholder="&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#20837;&#21147;" style="width:100%;padding:12px;border:2px solid #F5C4B3;border-radius:8px;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:12px;"><div id="pw-error" style="color:#D32F2F;font-size:13px;margin-bottom:12px;display:none;">&#12497;&#12473;&#12527;&#12540;&#12489;&#12364;&#36949;&#12356;&#12414;&#12377;</div><button id="pw-btn" style="width:100%;padding:14px;background:#F55C2B;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;">&#30906;&#35469;&#12377;&#12427;</button></div>';
     document.body.appendChild(overlay);
     document.documentElement.style.visibility = "visible";
-
     function check(){
       var val = document.getElementById("pw-input").value;
       if(val === PASSWORD){
@@ -47,7 +43,8 @@
     showLock();
   }
 })();
-</script><meta charset="UTF-8">
+</script>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>害獣侵入リスク診断 — 質問・スコアリング分岐表</title>
 <style>
