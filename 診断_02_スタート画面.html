@@ -4,21 +4,50 @@
 (function(){
   var PASSWORD = "gaiju2024";
   var KEY = "gaiju_auth";
-  // スタイルでページ全体を非表示
+  if(sessionStorage.getItem(KEY) === "1") return;
+
+  // ページ全体を隠す
   document.documentElement.style.visibility = "hidden";
-  if(sessionStorage.getItem(KEY) !== "1"){
-    var input = prompt("パスワードを入力してください");
-    if(input !== PASSWORD){
-      document.documentElement.innerHTML = "<body style='font-family:sans-serif;text-align:center;padding:60px'><h2>⛔ アクセスできません</h2><p>パスワードが違います。ページを再読み込みしてください。</p></body>";
-      document.documentElement.style.visibility = "visible";
-      throw new Error("wrong password");
+
+  // パスワード画面を上に重ねて表示
+  function showLock(){
+    var overlay = document.createElement("div");
+    overlay.id = "pw-overlay";
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;";
+    overlay.innerHTML = '<div style="text-align:center;padding:40px;max-width:320px;">'
+      + '<div style="font-size:48px;margin-bottom:16px;">🔒</div>'
+      + '<h2 style="font-size:20px;margin-bottom:8px;color:#481200;">閲覧にはパスワードが必要です</h2>'
+      + '<p style="font-size:13px;color:#666;margin-bottom:24px;">担当者からパスワードをお受け取りください</p>'
+      + '<input id="pw-input" type="password" placeholder="パスワードを入力" style="width:100%;padding:12px;border:2px solid #F5C4B3;border-radius:8px;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:12px;">'
+      + '<div id="pw-error" style="color:#D32F2F;font-size:13px;margin-bottom:12px;display:none;">パスワードが違います</div>'
+      + '<button id="pw-btn" style="width:100%;padding:14px;background:#F55C2B;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;">確認する</button>'
+      + '</div>';
+    document.body.appendChild(overlay);
+    document.documentElement.style.visibility = "visible";
+
+    function check(){
+      var val = document.getElementById("pw-input").value;
+      if(val === PASSWORD){
+        sessionStorage.setItem(KEY, "1");
+        overlay.remove();
+      } else {
+        document.getElementById("pw-error").style.display = "block";
+        document.getElementById("pw-input").value = "";
+        document.getElementById("pw-input").focus();
+      }
     }
-    sessionStorage.setItem(KEY, "1");
+    document.getElementById("pw-btn").addEventListener("click", check);
+    document.getElementById("pw-input").addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
+    setTimeout(function(){ document.getElementById("pw-input").focus(); }, 100);
   }
-  document.documentElement.style.visibility = "visible";
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", showLock);
+  } else {
+    showLock();
+  }
 })();
-</script>
-<meta charset="UTF-8">
+</script><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>害獣侵入リスク診断 — スタート画面 UI構成案</title>
 <style>
