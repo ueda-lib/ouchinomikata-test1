@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script>
+(function(){
+  var PASSWORD = "gaiju2024";
+  var KEY = "gaiju_auth";
+  // スタイルでページ全体を非表示
+  document.documentElement.style.visibility = "hidden";
+  if(sessionStorage.getItem(KEY) !== "1"){
+    var input = prompt("パスワードを入力してください");
+    if(input !== PASSWORD){
+      document.documentElement.innerHTML = "<body style='font-family:sans-serif;text-align:center;padding:60px'><h2>⛔ アクセスできません</h2><p>パスワードが違います。ページを再読み込みしてください。</p></body>";
+      document.documentElement.style.visibility = "visible";
+      throw new Error("wrong password");
+    }
+    sessionStorage.setItem(KEY, "1");
+  }
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>害獣侵入リスク診断 — 結果画面 UI構成案</title>
+<style>
+  :root {
+    --primary: #F55C2B;
+    --primary-dark: #481200;
+    --danger: #D32F2F;
+    --warn: #F9A825;
+    --safe: #388E3C;
+    --bg: #FFF6F3;
+    --border: #F5C4B3;
+    --text: #222;
+    --text-sub: #555;
+    --cta-tel: #EA0B00;
+    --cta-mail: #3AAD3F;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: var(--text); background: #f0ebe6; line-height: 1.7; }
+
+  .spec-bar {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 13px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .spec-bar strong { color: #FFEC01; }
+
+  .device-frame {
+    max-width: 420px;
+    margin: 32px auto;
+    background: #f9f7f4;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.12);
+    overflow: hidden;
+  }
+
+  .result-screen { padding: 0; }
+
+  /* ① 総合リスクレベル */
+  .result-total {
+    text-align: center;
+    padding: 32px 20px 28px;
+    background: linear-gradient(180deg, #fff 0%, #f9f7f4 100%);
+  }
+  .result-total__label {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .result-total__level {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .result-total__level.danger { color: var(--danger); }
+  .result-total__level.warn { color: var(--warn); }
+  .result-total__level.safe { color: var(--safe); }
+  .result-total__bar {
+    width: 200px;
+    height: 8px;
+    background: #E0E0E0;
+    border-radius: 4px;
+    margin: 0 auto 12px;
+    overflow: hidden;
+  }
+  .result-total__bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .result-total__bar-fill.danger { background: var(--danger); }
+  .result-total__bar-fill.warn { background: var(--warn); }
+  .result-total__bar-fill.safe { background: var(--safe); }
+  .result-total__desc {
+    font-size: 14px;
+    color: var(--text);
+    max-width: 300px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ② レーダーチャート */
+  .result-radar {
+    padding: 24px 20px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .radar-wrap {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    text-align: center;
+  }
+  .radar-wrap svg { max-width: 100%; height: auto; }
+
+  /* ③ 害獣カード */
+  .result-pests {
+    padding: 0 20px 24px;
+  }
+  .pest-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .pest-card__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+  }
+  .pest-card__illust {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: #f0ddd6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--primary);
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 1px dashed var(--border);
+  }
+  .pest-card__info { flex: 1; }
+  .pest-card__name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 4px;
+  }
+  .pest-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pest-card__badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .pest-card__badge.danger { background: var(--danger); }
+  .pest-card__badge.warn { background: var(--warn); }
+  .pest-card__badge.safe { background: var(--safe); }
+  .pest-card__percent {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .pest-card__percent.danger { color: var(--danger); }
+  .pest-card__percent.warn { color: var(--warn); }
+  .pest-card__percent.safe { color: var(--safe); }
+  .pest-card__desc {
+    padding: 0 16px 16px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+    border-top: 1px solid #f0ebe6;
+    padding-top: 12px;
+    margin: 0 16px;
+  }
+  /* Cレベルは解説なし→コンパクト */
+  .pest-card.compact .pest-card__header { padding: 12px 16px; }
+  .pest-card.compact .pest-card__illust { width: 40px; height: 40px; font-size: 9px; }
+  .pest-card.compact .pest-card__name { font-size: 14px; }
+
+  /* ④ 対策セクション */
+  .result-measures {
+    padding: 0 20px 24px;
+  }
+  .measure-block {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .measure-block__title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .measure-block__title.self { color: var(--primary); border-color: var(--primary); }
+  .measure-block__title.pro { color: var(--primary-dark); border-color: var(--primary-dark); }
+  .measure-block__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .measure-block__icon.self { background: var(--primary); }
+  .measure-block__icon.pro { background: var(--primary-dark); }
+  .measure-list {
+    list-style: none;
+    padding: 0;
+  }
+  .measure-list li {
+    position: relative;
+    padding: 6px 0 6px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .measure-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .measure-list.self li::before { background: var(--primary); }
+  .measure-list.pro li::before { background: var(--primary-dark); }
+
+  /* ⑤ CTA */
+  .result-cta {
+    padding: 28px 20px 32px;
+    background: linear-gradient(180deg, #f9f7f4 0%, #fff 100%);
+    text-align: center;
+  }
+  .result-cta__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+  }
+  .result-cta__desc {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+  .cta-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .cta-btn:hover { transform: translateY(-2px); }
+  .cta-btn.tel {
+    background: var(--cta-tel);
+    box-shadow: 0 4px 16px rgba(234,11,0,.25);
+  }
+  .cta-btn.tel .cta-btn__number {
+    display: block;
+    font-size: 22px;
+    letter-spacing: .05em;
+    margin-bottom: 2px;
+  }
+  .cta-btn.tel .cta-btn__label { font-size: 13px; opacity: .9; }
+  .cta-btn.mail {
+    background: var(--cta-mail);
+    box-shadow: 0 4px 16px rgba(58,173,63,.25);
+  }
+  .cta-sub {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin: 4px 0 20px;
+  }
+  .cta-retry {
+    display: inline-block;
+    padding: 10px 24px;
+    border: 1.5px solid var(--primary);
+    border-radius: 10px;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #fff;
+    transition: all .2s;
+  }
+  .cta-retry:hover { background: var(--bg); }
+
+  /* 仕様注釈 */
+  .spec-notes {
+    max-width: 640px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+  }
+  .spec-notes h3 {
+    font-size: 16px;
+    color: var(--primary-dark);
+    margin: 32px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .spec-notes table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .spec-notes th {
+    background: var(--bg);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 1px solid #eee;
+    width: 160px;
+    white-space: nowrap;
+  }
+  .spec-notes td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  .spec-notes .color-chip {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 4px;
+    border: 1px solid rgba(0,0,0,.1);
+  }
+</style>
+</head>
+<body>
+
+<div class="spec-bar">
+  <strong>UI構成案</strong> — 結果画面（スクロール1枚構成）｜サンプルデータ: 高リスク住宅
+</div>
+
+<div class="device-frame">
+  <div class="result-screen">
+
+    <!-- ① 総合リスクレベル -->
+    <div class="result-total">
+      <p class="result-total__label">あなたの診断結果</p>
+      <p class="result-total__level danger">高リスク</p>
+      <div class="result-total__bar">
+        <div class="result-total__bar-fill danger" style="width: 67%;"></div>
+      </div>
+      <p class="result-total__desc">
+        あなたのお住まいは<strong>害獣が侵入しやすい環境</strong>です。早めの対策をおすすめします。
+      </p>
+    </div>
+
+    <!-- ② レーダーチャート -->
+    <div class="result-radar">
+      <h2 class="section-title">害獣別リスク分布</h2>
+      <div class="radar-wrap">
+        <svg viewBox="0 0 340 320" width="300" height="280">
+          <!-- グリッド（同心五角形） -->
+          <g stroke="#E0E0E0" stroke-width="1" fill="none">
+            <!-- 20% -->
+            <polygon points="170,142 175,145 173,150 167,150 165,145" />
+            <!-- 40% -->
+            <polygon points="170,124 190,139 182,157 158,157 150,139" />
+            <!-- 60% -->
+            <polygon points="170,106 205,132 192,164 148,164 135,132" />
+            <!-- 80% -->
+            <polygon points="170,88 219,126 201,172 139,172 121,126" />
+            <!-- 100% -->
+            <polygon points="170,70 234,120 210,179 130,179 106,120" />
+          </g>
+          <!-- 軸線 -->
+          <g stroke="#E0E0E0" stroke-width="1">
+            <line x1="170" y1="160" x2="170" y2="70" />
+            <line x1="170" y1="160" x2="234" y2="120" />
+            <line x1="170" y1="160" x2="210" y2="179" />
+            <line x1="170" y1="160" x2="130" y2="179" />
+            <line x1="170" y1="160" x2="106" y2="120" />
+          </g>
+          <!-- データポリゴン -->
+          <polygon
+            points="170,93 214,126 197,173 143,173 121,128"
+            fill="rgba(245,92,43,0.25)"
+            stroke="#F55C2B"
+            stroke-width="2.5"
+          />
+          <!-- データ点 -->
+          <g fill="#F55C2B">
+            <circle cx="170" cy="93" r="4" />
+            <circle cx="214" cy="126" r="4" />
+            <circle cx="197" cy="173" r="4" />
+            <circle cx="143" cy="173" r="4" />
+            <circle cx="121" cy="128" r="4" />
+          </g>
+          <!-- 軸ラベル -->
+          <text x="170" y="58" text-anchor="middle" font-size="13" font-weight="700" fill="#481200">ネズミ</text>
+          <text x="170" y="72" text-anchor="middle" font-size="11" fill="#D32F2F" font-weight="700">73%</text>
+          <text x="248" y="120" text-anchor="start" font-size="13" font-weight="700" fill="#481200">イタチ</text>
+          <text x="248" y="134" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="220" y="198" text-anchor="start" font-size="13" font-weight="700" fill="#481200">ハクビシン</text>
+          <text x="220" y="212" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="120" y="198" text-anchor="end" font-size="13" font-weight="700" fill="#481200">アライグマ</text>
+          <text x="120" y="212" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="92" y="120" text-anchor="end" font-size="13" font-weight="700" fill="#481200">コウモリ</text>
+          <text x="92" y="134" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">60%</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ③ 害獣別リスクカード -->
+    <div class="result-pests">
+      <h2 class="section-title">害獣ごとのリスク詳細</h2>
+
+      <div class="pest-card">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">ネズミ</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge danger">A 危険</span>
+              <span class="pest-card__percent danger">73%</span>
+            </div>
+          </div>
+        </div>
+        <p class="pest-card__desc">わずか1.5cmの隙間から侵入。配線をかじり、火災の原因になることもあります。</p>
+      </div>
+
+      <div class="pest-card">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">イタチ</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge danger">A 危険</span>
+              <span class="pest-card__percent danger">67%</span>
+            </div>
+          </div>
+        </div>
+        <p class="pest-card__desc">3cmの隙間から侵入。強烈な糞尿のにおいを残します。</p>
+      </div>
+
+      <div class="pest-card">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">ハクビシン</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge danger">A 危険</span>
+              <span class="pest-card__percent danger">67%</span>
+            </div>
+          </div>
+        </div>
+        <p class="pest-card__desc">木登りが得意で屋根から侵入。同じ場所に糞をする「ため糞」の習性があります。</p>
+      </div>
+
+      <div class="pest-card">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">アライグマ</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge danger">A 危険</span>
+              <span class="pest-card__percent danger">67%</span>
+            </div>
+          </div>
+        </div>
+        <p class="pest-card__desc">力が強く、破壊して侵入します。攻撃性があり危険です。</p>
+      </div>
+
+      <div class="pest-card">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">コウモリ</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge danger">A 危険</span>
+              <span class="pest-card__percent danger">60%</span>
+            </div>
+          </div>
+        </div>
+        <p class="pest-card__desc">1cmの隙間から侵入。糞による感染症のリスクがあります。</p>
+      </div>
+
+      <!-- Cレベルの場合（参考表示） -->
+      <p style="text-align:center; font-size:12px; color:var(--text-sub); margin: 16px 0 8px; border-top: 1px dashed #ddd; padding-top: 16px;">※ レベル C（安全）の場合は下記のようにコンパクト表示:</p>
+      <div class="pest-card compact">
+        <div class="pest-card__header">
+          <div class="pest-card__illust">イラスト</div>
+          <div class="pest-card__info">
+            <p class="pest-card__name">コウモリ</p>
+            <div class="pest-card__meta">
+              <span class="pest-card__badge safe">C 安全</span>
+              <span class="pest-card__percent safe">7%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 対策セクション -->
+    <div class="result-measures">
+      <h2 class="section-title">おすすめの対策</h2>
+      <div class="measure-block">
+        <h3 class="measure-block__title self">
+          <span class="measure-block__icon self">&#9998;</span>
+          ご自身でできる対策
+        </h3>
+        <ul class="measure-list self">
+          <li>通気口・換気口に目の細かい金網を設置する</li>
+          <li>屋根にかかる庭木の枝を剪定する</li>
+          <li>生ゴミ・ペットフードを屋内、または蓋付き容器で管理する</li>
+          <li>エアコン配管まわりの隙間をパテで埋める</li>
+        </ul>
+      </div>
+      <div class="measure-block">
+        <h3 class="measure-block__title pro">
+          <span class="measure-block__icon pro">&#9733;</span>
+          プロに依頼すべき対策
+        </h3>
+        <ul class="measure-list pro">
+          <li>侵入経路の調査・特定</li>
+          <li>隙間の封鎖（侵入口の閉塞）</li>
+          <li>天井裏などの清掃・消毒</li>
+          <li>再発防止のための定期点検</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ⑤ CTA -->
+    <div class="result-cta">
+      <h2 class="result-cta__title">まずはお気軽にご相談ください</h2>
+      <p class="result-cta__desc">プロの無料調査で、侵入経路を特定し<br>最適な対策をご提案いたします。</p>
+      <a class="cta-btn tel" href="tel:0120725352">
+        <span class="cta-btn__number">0120-725-352</span>
+        <span class="cta-btn__label">電話で相談する（無料）</span>
+      </a>
+      <a class="cta-btn mail" href="/pestcontrol/form/">メールで相談する（無料）</a>
+      <p class="cta-sub">年中無休 24時間受付</p>
+      <a class="cta-retry" href="#">もう一度診断する</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 仕様注釈 -->
+<div class="spec-notes">
+  <h3>結果画面 — セクション構成</h3>
+  <table>
+    <tr><th>構成</th><td>スクロール1枚構成。上から順に5セクション:<br>
+      ① 総合リスクレベル → ② レーダーチャート → ③ 害獣別カード → ④ 対策 → ⑤ CTA</td></tr>
+    <tr><th>表示アニメーション</th><td>結果画面全体: フェードイン (opacity 0→1, 0.4s ease)<br>レーダーチャート: ポリゴンの scale 0→1 (0.4s ease)</td></tr>
+  </table>
+
+  <h3>① 総合リスクレベル</h3>
+  <table>
+    <tr><th>配色ルール</th><td>
+      <span class="color-chip" style="background:#D32F2F;"></span>高リスク（50%以上）
+      <span class="color-chip" style="background:#F9A825;"></span>中リスク（25〜49%）
+      <span class="color-chip" style="background:#388E3C;"></span>低リスク（24%以下）
+    </td></tr>
+    <tr><th>文言</th><td>リスクレベルに応じて変動<br>高: 「害獣が侵入しやすい環境です。早めの対策をおすすめします。」<br>中: 「いくつかのリスク要因があります。予防対策をご検討ください。」<br>低: 「現時点でのリスクは低めです。予防的な確認をおすすめします。」</td></tr>
+  </table>
+
+  <h3>② レーダーチャート</h3>
+  <table>
+    <tr><th>実装</th><td>バニラJS + SVG 自前描画（外部ライブラリ不使用）</td></tr>
+    <tr><th>軸の順序</th><td>12時方向から時計回り: ネズミ → イタチ → ハクビシン → アライグマ → コウモリ</td></tr>
+    <tr><th>グリッド</th><td>20/40/60/80/100 の同心五角形。<span class="color-chip" style="background:#E0E0E0;"></span>#E0E0E0</td></tr>
+    <tr><th>プロット</th><td>塗り: rgba(245,92,43,0.25) / 線: <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B 2.5px / 頂点: 丸ドット</td></tr>
+    <tr><th>ラベル</th><td>害獣名（13px Bold #481200）+ リスク%（11px Bold レベル色）</td></tr>
+  </table>
+
+  <h3>③ 害獣別リスクカード</h3>
+  <table>
+    <tr><th>並び順</th><td>レベル A → B → C の順。同レベル内はリスク%の降順</td></tr>
+    <tr><th>A / B レベル</th><td>イラスト + 害獣名 + バッジ + % + 解説テキスト（1〜2行）</td></tr>
+    <tr><th>C レベル</th><td>コンパクト表示。イラスト + 害獣名 + バッジ + % のみ。解説なし</td></tr>
+    <tr><th>バッジカラー</th><td>
+      <span class="color-chip" style="background:#D32F2F;"></span>A 危険
+      <span class="color-chip" style="background:#F9A825;"></span>B 注意
+      <span class="color-chip" style="background:#388E3C;"></span>C 安全
+    </td></tr>
+    <tr><th>イラスト</th><td>56×56px（後日差し替え）。C レベルは 40×40px</td></tr>
+  </table>
+
+  <h3>④ 対策セクション</h3>
+  <table>
+    <tr><th>形式</th><td>全展開（アコーディオン/タブは使わない）</td></tr>
+    <tr><th>構成</th><td>「ご自身でできる対策」（<span class="color-chip" style="background:#F55C2B;"></span>オレンジ系）<br>「プロに依頼すべき対策」（<span class="color-chip" style="background:#481200;"></span>ブラウン系）の2ブロック</td></tr>
+  </table>
+
+  <h3>⑤ CTAセクション</h3>
+  <table>
+    <tr><th>電話ボタン</th><td><span class="color-chip" style="background:#EA0B00;"></span>#EA0B00 / tel:0120-725-352 / 電話番号を大きく表示</td></tr>
+    <tr><th>フォームボタン</th><td><span class="color-chip" style="background:#3AAD3F;"></span>#3AAD3F / リンク先: /pestcontrol/form/</td></tr>
+    <tr><th>もう一度診断</th><td>アウトラインボタン（ボーダー <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B）→ スタート画面に戻る</td></tr>
+    <tr><th>確認事項</th><td>電話番号・フォームURLは反映直前に花光様へ最終確認</td></tr>
+  </table>
+</div>
+
+</body>
+</html>

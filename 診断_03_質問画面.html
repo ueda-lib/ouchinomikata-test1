@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script>
+(function(){
+  var PASSWORD = "gaiju2024";
+  var KEY = "gaiju_auth";
+  // スタイルでページ全体を非表示
+  document.documentElement.style.visibility = "hidden";
+  if(sessionStorage.getItem(KEY) !== "1"){
+    var input = prompt("パスワードを入力してください");
+    if(input !== PASSWORD){
+      document.documentElement.innerHTML = "<body style='font-family:sans-serif;text-align:center;padding:60px'><h2>⛔ アクセスできません</h2><p>パスワードが違います。ページを再読み込みしてください。</p></body>";
+      document.documentElement.style.visibility = "visible";
+      throw new Error("wrong password");
+    }
+    sessionStorage.setItem(KEY, "1");
+  }
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>害獣侵入リスク診断 — 質問画面 UI構成案</title>
+<style>
+  :root {
+    --primary: #F55C2B;
+    --primary-dark: #481200;
+    --bg: #FFF6F3;
+    --border: #F5C4B3;
+    --text: #222;
+    --text-sub: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: var(--text); background: #f0ebe6; line-height: 1.7; }
+
+  .spec-bar {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .spec-bar strong { color: #FFEC01; }
+
+  .mockup-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 32px 20px;
+  }
+
+  .device-frame {
+    width: 390px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.12);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .device-frame__label {
+    background: var(--primary-dark);
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* 質問画面 */
+  .q-screen { padding: 20px; }
+
+  .progress {
+    margin-bottom: 20px;
+  }
+  .progress__label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .progress__bar {
+    height: 6px;
+    background: #E0E0E0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress__fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width .3s ease;
+  }
+
+  .q-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    padding: 24px 20px;
+    border: 1px solid #f0ebe6;
+  }
+  .q-card__badge {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  .q-card__text {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .choice-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: all .2s ease;
+    min-height: 48px;
+  }
+  .choice:hover {
+    border-color: var(--primary);
+    background: var(--bg);
+  }
+  .choice.is-selected {
+    border-color: var(--primary);
+    border-width: 2px;
+    background: var(--bg);
+  }
+  .choice__radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+  }
+  .choice:hover .choice__radio { border-color: var(--primary); }
+  .choice.is-selected .choice__radio {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .choice.is-selected .choice__radio::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .choice__text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* 仕様注釈 */
+  .spec-notes {
+    max-width: 860px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+  }
+  .spec-notes h3 {
+    font-size: 16px;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .spec-notes table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .spec-notes th {
+    background: var(--bg);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-dark);
+    white-space: nowrap;
+    border-bottom: 1px solid #eee;
+    width: 160px;
+  }
+  .spec-notes td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  .spec-notes .color-chip {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 4px;
+    border: 1px solid rgba(0,0,0,.1);
+  }
+
+  .state-demo {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .state-demo__box {
+    flex: 1;
+    min-width: 200px;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1.5px solid var(--border);
+    text-align: center;
+  }
+  .state-demo__box h4 {
+    font-size: 13px;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+  }
+  .state-demo__box.hover {
+    border-color: var(--primary);
+    background: var(--bg);
+  }
+  .state-demo__box.selected {
+    border-color: var(--primary);
+    border-width: 2.5px;
+    background: var(--bg);
+  }
+
+  .transition-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .t-step {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    text-align: center;
+  }
+  .t-arrow { color: var(--primary); font-weight: 700; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<div class="spec-bar">
+  <strong>UI構成案</strong> — 質問画面｜3つの状態を並列表示
+</div>
+
+<div class="mockup-row">
+
+  <!-- 状態1: 通常 -->
+  <div class="device-frame">
+    <div class="device-frame__label">通常状態（未選択）</div>
+    <div class="q-screen">
+      <div class="progress">
+        <div class="progress__label"><span>質問に回答してください</span><span>Q3 / Q10</span></div>
+        <div class="progress__bar"><div class="progress__fill" style="width: 30%;"></div></div>
+      </div>
+      <div class="q-card">
+        <span class="q-card__badge">Q3</span>
+        <p class="q-card__text">家の近くに飲食店やコンビニはありますか？</p>
+        <ul class="choice-list">
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">すぐ近くにある</span>
+          </li>
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">少し離れた場所にある（徒歩圏内）</span>
+          </li>
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">近くにはない</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 状態2: 選択済み -->
+  <div class="device-frame">
+    <div class="device-frame__label">選択済み状態（次の質問へ遷移前）</div>
+    <div class="q-screen">
+      <div class="progress">
+        <div class="progress__label"><span>質問に回答してください</span><span>Q3 / Q10</span></div>
+        <div class="progress__bar"><div class="progress__fill" style="width: 30%;"></div></div>
+      </div>
+      <div class="q-card">
+        <span class="q-card__badge">Q3</span>
+        <p class="q-card__text">家の近くに飲食店やコンビニはありますか？</p>
+        <ul class="choice-list">
+          <li class="choice is-selected">
+            <span class="choice__radio"></span>
+            <span class="choice__text">すぐ近くにある</span>
+          </li>
+          <li class="choice" style="opacity: .5;">
+            <span class="choice__radio"></span>
+            <span class="choice__text">少し離れた場所にある（徒歩圏内）</span>
+          </li>
+          <li class="choice" style="opacity: .5;">
+            <span class="choice__radio"></span>
+            <span class="choice__text">近くにはない</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 状態3: 次の質問 -->
+  <div class="device-frame">
+    <div class="device-frame__label">次の質問（Q4 にフェードイン）</div>
+    <div class="q-screen">
+      <div class="progress">
+        <div class="progress__label"><span>質問に回答してください</span><span>Q4 / Q10</span></div>
+        <div class="progress__bar"><div class="progress__fill" style="width: 40%;"></div></div>
+      </div>
+      <div class="q-card">
+        <span class="q-card__badge">Q4</span>
+        <p class="q-card__text">家の近くに公園・川・山はありますか？</p>
+        <ul class="choice-list">
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">すぐ近くにある</span>
+          </li>
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">少し離れた場所にある</span>
+          </li>
+          <li class="choice">
+            <span class="choice__radio"></span>
+            <span class="choice__text">近くにはない</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 仕様注釈 -->
+<div class="spec-notes">
+  <h3>質問画面 — 要素仕様</h3>
+  <table>
+    <tr><th>プログレスバー</th><td>高さ 6px / 塗り <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B / 未進行 <span class="color-chip" style="background:#E0E0E0;"></span>#E0E0E0<br>右端に「Q3 / Q10」を表示。バーは CSS transition 0.3s でスムーズに伸びる</td></tr>
+    <tr><th>質問番号ラベル</th><td>「Q3」 <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B 白文字 Bold 12px / 角丸 6px / padding 3px 12px</td></tr>
+    <tr><th>質問文</th><td>Bold 17px <span class="color-chip" style="background:#481200;"></span>#481200 / です・ます調の疑問形</td></tr>
+    <tr><th>選択肢カード</th><td>縦1列 / 幅 100% / 高さ 48px以上（タッチ領域確保）/ 間隔 10px<br>ボーダー <span class="color-chip" style="background:#F5C4B3;"></span>#F5C4B3 1.5px / 角丸 10px</td></tr>
+    <tr><th>選択肢テキスト</th><td>14px Medium(500) <span class="color-chip" style="background:#222;"></span>#222</td></tr>
+  </table>
+
+  <h3>選択肢の3つの状態</h3>
+  <div class="state-demo">
+    <div class="state-demo__box">
+      <h4>通常</h4>
+      <p style="font-size:12px;">白背景<br>ボーダー <span class="color-chip" style="background:#F5C4B3;"></span>#F5C4B3<br>薄い影</p>
+    </div>
+    <div class="state-demo__box hover">
+      <h4>ホバー / タップ</h4>
+      <p style="font-size:12px;">背景 <span class="color-chip" style="background:#FFF6F3;"></span>#FFF6F3<br>ボーダー <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B</p>
+    </div>
+    <div class="state-demo__box selected">
+      <h4>選択済み</h4>
+      <p style="font-size:12px;">背景 <span class="color-chip" style="background:#FFF6F3;"></span>#FFF6F3<br>ボーダー <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B 太め<br>ラジオボタン塗りつぶし</p>
+    </div>
+  </div>
+
+  <h3>画面遷移フロー</h3>
+  <div class="transition-flow">
+    <div class="t-step">選択肢をタップ</div>
+    <span class="t-arrow">&rarr;</span>
+    <div class="t-step">選択済み状態に変化<br><small>（他の選択肢が薄くなる）</small></div>
+    <span class="t-arrow">&rarr;</span>
+    <div class="t-step">300〜500ms 待機</div>
+    <span class="t-arrow">&rarr;</span>
+    <div class="t-step">フェードアウト<br><small>opacity 1→0 (0.2s)</small></div>
+    <span class="t-arrow">&rarr;</span>
+    <div class="t-step">次の質問<br>フェードイン<br><small>opacity 0→1 (0.3s)</small></div>
+    <span class="t-arrow">&rarr;</span>
+    <div class="t-step">質問カード上部へ<br>自動スクロール</div>
+  </div>
+
+  <h3>その他</h3>
+  <table>
+    <tr><th>「戻る」機能</th><td>今回スコープ外。将来的に検討</td></tr>
+    <tr><th>reduced-motion</th><td>prefers-reduced-motion 対応。アニメーション無効時は即時切り替え</td></tr>
+  </table>
+</div>
+
+</body>
+</html>

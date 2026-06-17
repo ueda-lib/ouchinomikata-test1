@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script>
+(function(){
+  var PASSWORD = "gaiju2024";
+  var KEY = "gaiju_auth";
+  // スタイルでページ全体を非表示
+  document.documentElement.style.visibility = "hidden";
+  if(sessionStorage.getItem(KEY) !== "1"){
+    var input = prompt("パスワードを入力してください");
+    if(input !== PASSWORD){
+      document.documentElement.innerHTML = "<body style='font-family:sans-serif;text-align:center;padding:60px'><h2>⛔ アクセスできません</h2><p>パスワードが違います。ページを再読み込みしてください。</p></body>";
+      document.documentElement.style.visibility = "visible";
+      throw new Error("wrong password");
+    }
+    sessionStorage.setItem(KEY, "1");
+  }
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>害獣侵入リスク診断 — スタート画面 UI構成案</title>
+<style>
+  :root {
+    --primary: #F55C2B;
+    --primary-dark: #481200;
+    --bg: #FFF6F3;
+    --border: #F5C4B3;
+    --text: #222;
+    --text-sub: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: var(--text); background: #f0ebe6; line-height: 1.7; }
+
+  /* 注釈バー */
+  .spec-bar {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .spec-bar strong { color: #FFEC01; }
+
+  /* モックアップ外枠 */
+  .device-frame {
+    max-width: 420px;
+    margin: 32px auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.12);
+    overflow: hidden;
+  }
+
+  /* スタート画面 */
+  .start-screen {
+    padding: 0;
+  }
+
+  .start-hero {
+    background: linear-gradient(135deg, #FFF6F3 0%, #FFE8E0 100%);
+    padding: 40px 24px 32px;
+    text-align: center;
+  }
+  .start-hero__illust {
+    width: 160px;
+    height: 120px;
+    margin: 0 auto 20px;
+    background: #f0ddd6;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px dashed var(--border);
+  }
+  .start-hero__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  .start-hero__title span {
+    display: inline;
+    background: linear-gradient(transparent 60%, #FFEC01 60%);
+  }
+  .start-hero__desc {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .start-meta {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .start-meta__item {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .start-meta__icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .start-meta__label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+  .start-meta__value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-dark);
+  }
+
+  .start-cta {
+    padding: 0 24px 32px;
+  }
+  .start-cta__btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(245,92,43,.3);
+    transition: transform .2s, box-shadow .2s;
+    letter-spacing: .05em;
+  }
+  .start-cta__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(245,92,43,.4);
+  }
+  .start-cta__note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 12px;
+  }
+
+  /* 仕様注釈 */
+  .spec-notes {
+    max-width: 640px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+  }
+  .spec-notes h3 {
+    font-size: 16px;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .spec-notes table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .spec-notes th {
+    background: var(--bg);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-dark);
+    white-space: nowrap;
+    border-bottom: 1px solid #eee;
+    width: 140px;
+  }
+  .spec-notes td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    color: var(--text);
+  }
+  .spec-notes .color-chip {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+    border: 1px solid rgba(0,0,0,.1);
+  }
+</style>
+</head>
+<body>
+
+<div class="spec-bar">
+  <strong>UI構成案</strong> — スタート画面（導入画面）｜スマホ表示基準 375px
+</div>
+
+<!-- モックアップ -->
+<div class="device-frame">
+  <div class="start-screen">
+    <div class="start-hero">
+      <div class="start-hero__illust">
+        イラスト<br>（後日差し替え）
+      </div>
+      <h1 class="start-hero__title"><span>害獣侵入リスク診断</span></h1>
+      <p class="start-hero__desc">
+        あなたのお住まいに害獣が侵入するリスクを<strong>無料</strong>で診断します。<br>
+        10の質問に答えるだけで、5種類の害獣ごとのリスクがわかります。
+      </p>
+      <div class="start-meta">
+        <div class="start-meta__item">
+          <span class="start-meta__label">質問数</span>
+          <span class="start-meta__value">10問</span>
+        </div>
+        <div class="start-meta__item">
+          <span class="start-meta__label">所要時間</span>
+          <span class="start-meta__value">約2分</span>
+        </div>
+      </div>
+    </div>
+    <div class="start-cta">
+      <a class="start-cta__btn" href="#">診断をはじめる</a>
+      <p class="start-cta__note">※ 個人情報の入力は不要です</p>
+    </div>
+  </div>
+</div>
+
+<!-- 仕様注釈 -->
+<div class="spec-notes">
+  <h3>スタート画面 — 要素仕様</h3>
+  <table>
+    <tr><th>イラストエリア</th><td>家のイラスト（後日差し替え）。未準備時はオレンジ系アイコンで代替。サイズ 160×120px 程度</td></tr>
+    <tr><th>タイトル</th><td>「害獣侵入リスク診断」<br><span class="color-chip" style="background:#481200;"></span>#481200（ダークブラウン）Bold 22〜26px<br>イエロー #FFEC01 のアンダーライン装飾</td></tr>
+    <tr><th>説明文</th><td>2〜3行。です・ます調。14px <span class="color-chip" style="background:#222;"></span>#222</td></tr>
+    <tr><th>質問数・所要時間</th><td>横並び2カラム。白背景 + ボーダー <span class="color-chip" style="background:#F5C4B3;"></span>#F5C4B3 角丸10px<br>数値: 18px Bold <span class="color-chip" style="background:#481200;"></span>#481200<br>ラベル: 11px <span class="color-chip" style="background:#555;"></span>#555</td></tr>
+    <tr><th>CTAボタン</th><td>「診断をはじめる」<br><span class="color-chip" style="background:#F55C2B;"></span>#F55C2B 白文字 Bold 17px<br>幅 100% / 高さ 56px / 角丸 12px<br>ホバー: translateY(-2px) + shadow強化</td></tr>
+    <tr><th>補足テキスト</th><td>「個人情報の入力は不要です」 12px <span class="color-chip" style="background:#555;"></span>#555 中央寄せ</td></tr>
+    <tr><th>背景</th><td>上部: グラデーション <span class="color-chip" style="background:#FFF6F3;"></span>#FFF6F3 → <span class="color-chip" style="background:#FFE8E0;"></span>#FFE8E0<br>下部（CTA周辺）: 白</td></tr>
+  </table>
+
+  <h3>レスポンシブ</h3>
+  <table>
+    <tr><th>SP（375px）</th><td>上記レイアウトがそのまま基準。コンテンツ幅は埋め込み先に追従</td></tr>
+    <tr><th>PC</th><td>max-width: 640px で中央寄せ。同じ縦長レイアウトを維持</td></tr>
+  </table>
+</div>
+
+</body>
+</html>

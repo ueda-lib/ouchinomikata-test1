@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script>
+(function(){
+  var PASSWORD = "gaiju2024";
+  var KEY = "gaiju_auth";
+  // スタイルでページ全体を非表示
+  document.documentElement.style.visibility = "hidden";
+  if(sessionStorage.getItem(KEY) !== "1"){
+    var input = prompt("パスワードを入力してください");
+    if(input !== PASSWORD){
+      document.documentElement.innerHTML = "<body style='font-family:sans-serif;text-align:center;padding:60px'><h2>⛔ アクセスできません</h2><p>パスワードが違います。ページを再読み込みしてください。</p></body>";
+      document.documentElement.style.visibility = "visible";
+      throw new Error("wrong password");
+    }
+    sessionStorage.setItem(KEY, "1");
+  }
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>害獣侵入リスク診断 — 質問・スコアリング分岐表</title>
+<style>
+  :root {
+    --primary: #F55C2B;
+    --primary-dark: #481200;
+    --danger: #D32F2F;
+    --warn: #F9A825;
+    --safe: #388E3C;
+    --bg: #FFF6F3;
+    --border: #F5C4B3;
+    --text: #222;
+    --text-sub: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: var(--text); background: #f9f9f9; line-height: 1.7; }
+
+  .page-header {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .page-header h1 { font-size: 24px; margin-bottom: 8px; }
+  .page-header p { font-size: 14px; opacity: .8; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* 概要 */
+  .overview {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .overview h2 {
+    font-size: 18px;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .flow-box {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-align: center;
+    min-width: 100px;
+  }
+  .flow-box.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .flow-arrow { font-size: 20px; color: var(--primary); font-weight: 700; }
+  .overview-note {
+    background: var(--bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    border-radius: 0 8px 8px 0;
+  }
+  .overview-note strong { color: var(--primary-dark); }
+
+  /* 判定ロジック */
+  .logic-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .logic-section h2 {
+    font-size: 18px;
+    color: var(--primary-dark);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .formula-box {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin: 12px 0 20px;
+    font-family: monospace;
+    text-align: center;
+  }
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .level-card {
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+  }
+  .level-card.danger { background: var(--danger); }
+  .level-card.warn { background: var(--warn); }
+  .level-card.safe { background: var(--safe); }
+  .level-card .level-label { font-size: 22px; display: block; margin-bottom: 4px; }
+  .level-card .level-range { font-size: 13px; opacity: .9; display: block; }
+  .level-card .level-desc { font-size: 12px; opacity: .8; margin-top: 6px; display: block; }
+
+  /* 質問カード */
+  .question-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .question-card__header {
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .question-card__number {
+    background: #fff;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .question-card__text { font-size: 15px; font-weight: 700; }
+  .question-card__intent {
+    padding: 10px 20px;
+    background: var(--bg);
+    font-size: 12px;
+    color: var(--text-sub);
+    border-bottom: 1px solid #eee;
+  }
+  .question-card__intent strong { color: var(--primary-dark); }
+
+  /* スコアテーブル */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .score-table thead th {
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 10px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .score-table thead th:first-child { text-align: left; padding-left: 16px; min-width: 200px; }
+  .score-table tbody td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .score-table tbody td:first-child { text-align: left; padding-left: 16px; font-weight: 500; }
+  .score-table tbody tr:nth-child(even) { background: #fafafa; }
+  .score-table tbody tr:hover { background: var(--bg); }
+
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+  }
+  .score-badge.s0 { background: #ccc; color: #888; }
+  .score-badge.s1 { background: var(--safe); }
+  .score-badge.s2 { background: var(--warn); }
+  .score-badge.s3 { background: var(--danger); }
+
+  /* 最大ポイント表 */
+  .max-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+  .max-table th, .max-table td { padding: 10px 12px; border: 1px solid #eee; text-align: center; }
+  .max-table thead th { background: var(--primary-dark); color: #fff; font-size: 12px; }
+  .max-table tbody td { font-weight: 700; }
+
+  @media (max-width: 767px) {
+    .level-cards { grid-template-columns: 1fr; }
+    .score-table { font-size: 12px; }
+    .score-table thead th, .score-table tbody td { padding: 8px 4px; }
+    .score-table thead th:first-child, .score-table tbody td:first-child { padding-left: 8px; min-width: 120px; }
+    .score-badge { width: 24px; height: 24px; font-size: 11px; }
+    .flow-diagram { gap: 4px; }
+    .flow-box { padding: 8px 10px; font-size: 12px; min-width: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>害獣侵入リスク診断 — 質問・スコアリング分岐表</h1>
+  <p>おうちのミカタ｜全10問 × 5害獣 ポイント一覧</p>
+</div>
+
+<div class="container">
+
+  <!-- 概要 -->
+  <div class="overview">
+    <h2>診断フロー</h2>
+    <div class="flow-diagram">
+      <div class="flow-box">スタート画面</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-box active">Q1 〜 Q10<br><small>（全員共通・分岐なし）</small></div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">結果画面</div>
+    </div>
+    <div class="overview-note">
+      <strong>ポイント方式:</strong>
+      各質問の回答ごとに、5種類の害獣（ネズミ・イタチ・ハクビシン・アライグマ・コウモリ）それぞれにポイント（0〜3）が加算されます。条件による質問の分岐はなく、全ユーザーが同じ10問に回答します。最終的な合計ポイントで各害獣のリスクレベルを判定します。
+    </div>
+  </div>
+
+  <!-- 判定ロジック -->
+  <div class="logic-section">
+    <h2>判定ロジック</h2>
+
+    <h3 style="font-size:15px; margin: 16px 0 8px; color: var(--primary-dark);">害獣別リスク%</h3>
+    <div class="formula-box">リスク% = min(100, round((合計ポイント &divide; 30) &times; 100))</div>
+
+    <div class="level-cards">
+      <div class="level-card danger">
+        <span class="level-label">A 危険</span>
+        <span class="level-range">リスク 50%以上</span>
+        <span class="level-desc">解説テキスト表示あり<br>優先的に上に表示</span>
+      </div>
+      <div class="level-card warn">
+        <span class="level-label">B 注意</span>
+        <span class="level-range">リスク 25〜49%</span>
+        <span class="level-desc">解説テキスト表示あり</span>
+      </div>
+      <div class="level-card safe">
+        <span class="level-label">C 安全</span>
+        <span class="level-range">リスク 24%以下</span>
+        <span class="level-desc">レベル表示のみ<br>解説テキストなし</span>
+      </div>
+    </div>
+
+    <h3 style="font-size:15px; margin: 24px 0 8px; color: var(--primary-dark);">総合リスクレベル</h3>
+    <div class="formula-box">総合リスク% = min(100, round((5害獣の合計ポイント &divide; 150) &times; 100))</div>
+    <p style="font-size: 13px; color: var(--text-sub);">50%以上 → 高リスク（赤）／ 25〜49% → 中リスク（黄）／ 24%以下 → 低リスク（緑）</p>
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q1</span>
+      <span class="question-card__text">お住まいのタイプはどれですか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 木造は経年劣化による隙間が生じやすく、高層階はネズミ（配管）とコウモリ（飛翔）に限定される</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 木造の一戸建て</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>B) 鉄骨・RC造の一戸建て</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>C) 集合住宅（3階以下）</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s1">1</span></td></tr>
+        <tr><td>D) 集合住宅（4階以上）</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s1">1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q2</span>
+      <span class="question-card__text">お住まいの築年数はどのくらいですか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 築年数に比例して基礎のクラックや建材の痩せが進行し、侵入口が増加する</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 築10年未満</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>B) 築10〜20年未満</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td></tr>
+        <tr><td>C) 築20〜30年未満</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>D) 築30年以上</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q3</span>
+      <span class="question-card__text">家の近くに飲食店やコンビニはありますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 残飯はネズミやアライグマの強い誘因。コウモリは昆虫食のため無関係</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) すぐ近くにある</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>B) 少し離れた場所にある（徒歩圏内）</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>C) 近くにはない</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q4</span>
+      <span class="question-card__text">家の近くに公園・川・山はありますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 野生動物の移動回廊および餌場（昆虫・水）への近接性</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) すぐ近くにある</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>B) 少し離れた場所にある</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td></tr>
+        <tr><td>C) 近くにはない</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q5</span>
+      <span class="question-card__text">近所に空き家や空き地はありますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 管理されない空き家・空き地は害獣の「中継拠点」「巣」になりやすい</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 隣・すぐ近くにある</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>B) 近所にある</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td></tr>
+        <tr><td>C) 特にない</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q6</span>
+      <span class="question-card__text">通気口・換気口はどのような状態ですか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> ネズミ・イタチ・コウモリの主要侵入口。6mm超の目は通過リスク大</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) カバーがない、または壊れている</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s3">3</span></td></tr>
+        <tr><td>B) カバーはあるが網目が粗い</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>C) カバーがあり網目が細かい</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>D) わからない</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s1">1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q7</span>
+      <span class="question-card__text">庭木の枝が屋根にかかっていますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> ハクビシン・アライグマの「木登り→屋根→天井裏」ルートの判定</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 枝が屋根に接触している</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s1">1</span></td></tr>
+        <tr><td>B) やや近いが接触していない</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>C) 庭木はない・離れている</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q8</span>
+      <span class="question-card__text">エアコン室外機の配管まわりはどうなっていますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 配管貫通部はネズミとコウモリの典型的な侵入口</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) パテが劣化して隙間がある</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>B) しっかりパテで埋めてある</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>C) わからない・確認していない</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s1">1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q9</span>
+      <span class="question-card__text">屋根や外壁にひび割れや隙間はありますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 全害獣共通の侵入口。コウモリは特に瓦下の隙間を好む</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 明らかなひび割れ・隙間がある</td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s3">3</span></td></tr>
+        <tr><td>B) 小さなひび割れが少しある</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s2">2</span></td></tr>
+        <tr><td>C) 特に見当たらない</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card">
+    <div class="question-card__header">
+      <span class="question-card__number">Q10</span>
+      <span class="question-card__text">生ゴミやペットフードはどのように管理していますか？</span>
+    </div>
+    <div class="question-card__intent"><strong>設計意図:</strong> 食品放置は雑食性害獣を直接的に誘引する</div>
+    <table class="score-table">
+      <thead><tr><th>選択肢</th><th>ネズミ</th><th>イタチ</th><th>ハクビシン</th><th>アライグマ</th><th>コウモリ</th></tr></thead>
+      <tbody>
+        <tr><td>A) 屋外に放置することがある</td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s2">2</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s3">3</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>B) 蓋付き容器で屋外に保管している</td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s1">1</span></td><td><span class="score-badge s0">0</span></td></tr>
+        <tr><td>C) すべて屋内で管理している</td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td><td><span class="score-badge s0">0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 最大ポイント -->
+  <div class="logic-section">
+    <h2>理論上の最大ポイント（検算用）</h2>
+    <table class="max-table">
+      <thead><tr><th>害獣</th><th>最大ポイント</th><th>最大リスク%<br>(÷30×100)</th></tr></thead>
+      <tbody>
+        <tr><td>ネズミ</td><td>25</td><td>83%</td></tr>
+        <tr><td>イタチ</td><td>21</td><td>70%</td></tr>
+        <tr><td>ハクビシン</td><td>21</td><td>70%</td></tr>
+        <tr><td>アライグマ</td><td>22</td><td>73%</td></tr>
+        <tr><td>コウモリ</td><td>18</td><td>60%</td></tr>
+      </tbody>
+    </table>
+    <div class="overview-note" style="margin-top:16px;">
+      <strong>スコアの色の見方:</strong>
+      <span class="score-badge s0" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">0</span> 影響なし
+      <span class="score-badge s1" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">1</span> 低リスク
+      <span class="score-badge s2" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">2</span> 中リスク
+      <span class="score-badge s3" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">3</span> 高リスク
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
