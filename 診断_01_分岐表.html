@@ -144,6 +144,13 @@
     font-family: monospace;
     text-align: center;
   }
+  .formula-box small {
+    display: block;
+    font-size: 12px;
+    opacity: .8;
+    margin-top: 6px;
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+  }
   .level-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -246,6 +253,33 @@
   .max-table th, .max-table td { padding: 10px 12px; border: 1px solid #eee; text-align: center; }
   .max-table thead th { background: var(--primary-dark); color: #fff; font-size: 12px; }
   .max-table tbody td { font-weight: 700; }
+  .max-table tbody td.highlight { background: #FFF6F3; color: var(--danger); }
+
+  /* 設計意図ノート */
+  .design-note {
+    background: #FFFDE7;
+    border: 2px solid var(--warn);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .design-note h3 {
+    font-size: 15px;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+  }
+  .design-note p {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.8;
+  }
+  .design-note ul {
+    font-size: 13px;
+    margin-left: 20px;
+    color: var(--text);
+  }
+  .design-note ul li { margin-bottom: 4px; }
 
   @media (max-width: 767px) {
     .level-cards { grid-template-columns: 1fr; }
@@ -283,12 +317,26 @@
     </div>
   </div>
 
+  <!-- スコアリング設計意図 -->
+  <div class="design-note">
+    <h3>スコアリング設計の考え方</h3>
+    <p>本診断は「無料調査への誘導」を目的としています。そのため、以下の設計方針を採用しています:</p>
+    <ul>
+      <li><strong>害獣別の最大値で正規化</strong> — すべての害獣が理論上100%に到達できる設計。特定の害獣だけ上限が低い（=「安心」と誤解される）状態を排除</li>
+      <li><strong>ポイント配分は事実に基づく</strong> — 質問と害獣の関連性は生態学的事実に忠実。あくまで計算式で「見せ方」を最適化</li>
+      <li><strong>高リスク側に寄せた体感</strong> — 全問で最高リスクの回答を選ぶと全害獣100%。典型的な築古住宅（高リスク寄り回答）で各害獣80〜100%が表示される</li>
+    </ul>
+  </div>
+
   <!-- 判定ロジック -->
   <div class="logic-section">
     <h2>判定ロジック</h2>
 
     <h3 style="font-size:15px; margin: 16px 0 8px; color: var(--primary-dark);">害獣別リスク%</h3>
-    <div class="formula-box">リスク% = min(100, round((合計ポイント &divide; 30) &times; 100))</div>
+    <div class="formula-box">
+      リスク% = min(100, round((合計ポイント &divide; 害獣別最大値) &times; 100))
+      <small>※ 害獣ごとに異なる最大値で割ることで、全害獣が100%に到達可能</small>
+    </div>
 
     <div class="level-cards">
       <div class="level-card danger">
@@ -309,7 +357,10 @@
     </div>
 
     <h3 style="font-size:15px; margin: 24px 0 8px; color: var(--primary-dark);">総合リスクレベル</h3>
-    <div class="formula-box">総合リスク% = min(100, round((5害獣の合計ポイント &divide; 150) &times; 100))</div>
+    <div class="formula-box">
+      総合リスク% = min(100, round((5害獣の合計ポイント &divide; 107) &times; 100))
+      <small>※ 107 = 各害獣の最大値の合計（25+21+21+22+18）</small>
+    </div>
     <p style="font-size: 13px; color: var(--text-sub);">50%以上 → 高リスク（赤）／ 25〜49% → 中リスク（黄）／ 24%以下 → 低リスク（緑）</p>
   </div>
 
@@ -488,18 +539,34 @@
 
   <!-- 最大ポイント -->
   <div class="logic-section">
-    <h2>理論上の最大ポイント（検算用）</h2>
+    <h2>理論上の最大ポイントと正規化（検算用）</h2>
     <table class="max-table">
-      <thead><tr><th>害獣</th><th>最大ポイント</th><th>最大リスク%<br>(÷30×100)</th></tr></thead>
+      <thead><tr><th>害獣</th><th>最大ポイント<br>（=除算値）</th><th>最大リスク%</th></tr></thead>
       <tbody>
-        <tr><td>ネズミ</td><td>25</td><td>83%</td></tr>
-        <tr><td>イタチ</td><td>21</td><td>70%</td></tr>
-        <tr><td>ハクビシン</td><td>21</td><td>70%</td></tr>
-        <tr><td>アライグマ</td><td>22</td><td>73%</td></tr>
-        <tr><td>コウモリ</td><td>18</td><td>60%</td></tr>
+        <tr><td>ネズミ</td><td>25</td><td class="highlight">100%</td></tr>
+        <tr><td>イタチ</td><td>21</td><td class="highlight">100%</td></tr>
+        <tr><td>ハクビシン</td><td>21</td><td class="highlight">100%</td></tr>
+        <tr><td>アライグマ</td><td>22</td><td class="highlight">100%</td></tr>
+        <tr><td>コウモリ</td><td>18</td><td class="highlight">100%</td></tr>
       </tbody>
     </table>
-    <div class="overview-note" style="margin-top:16px;">
+
+    <div class="overview-note" style="margin-top:20px;">
+      <strong>計算例（高リスク住宅シミュレーション）:</strong><br>
+      全問で最高ポイント寄りの回答（Q1:A, Q2:D, Q3:A, Q4:A, Q5:A, Q6:A, Q7:A, Q8:A, Q9:A, Q10:A）の場合:<br>
+      <span style="display:inline-block;margin-top:8px;">
+      ネズミ: 25/25 = <strong style="color:#D32F2F;">100%</strong>&emsp;
+      イタチ: 21/21 = <strong style="color:#D32F2F;">100%</strong>&emsp;
+      ハクビシン: 21/21 = <strong style="color:#D32F2F;">100%</strong>&emsp;
+      アライグマ: 22/22 = <strong style="color:#D32F2F;">100%</strong>&emsp;
+      コウモリ: 18/18 = <strong style="color:#D32F2F;">100%</strong>
+      </span><br>
+      <span style="display:inline-block;margin-top:6px;">
+      総合: (25+21+21+22+18) / 107 = <strong style="color:#D32F2F;">100%</strong>
+      </span>
+    </div>
+
+    <div class="overview-note" style="margin-top:12px;">
       <strong>スコアの色の見方:</strong>
       <span class="score-badge s0" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">0</span> 影響なし
       <span class="score-badge s1" style="width:20px;height:20px;font-size:11px;vertical-align:middle;margin:0 2px;">1</span> 低リスク

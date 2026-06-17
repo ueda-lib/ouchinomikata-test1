@@ -410,7 +410,7 @@
       <p class="result-total__label">あなたの診断結果</p>
       <p class="result-total__level danger">高リスク</p>
       <div class="result-total__bar">
-        <div class="result-total__bar-fill danger" style="width: 67%;"></div>
+        <div class="result-total__bar-fill danger" style="width: 93%;"></div>
       </div>
       <p class="result-total__desc">
         あなたのお住まいは<strong>害獣が侵入しやすい環境</strong>です。早めの対策をおすすめします。
@@ -443,32 +443,32 @@
             <line x1="170" y1="160" x2="130" y2="179" />
             <line x1="170" y1="160" x2="106" y2="120" />
           </g>
-          <!-- データポリゴン -->
+          <!-- データポリゴン: ネズミ88% イタチ95% ハクビシン95% アライグマ91% コウモリ100% -->
           <polygon
-            points="170,93 214,126 197,173 143,173 121,128"
+            points="170,81 231,122 208,178 134,177 106,120"
             fill="rgba(245,92,43,0.25)"
             stroke="#F55C2B"
             stroke-width="2.5"
           />
           <!-- データ点 -->
           <g fill="#F55C2B">
-            <circle cx="170" cy="93" r="4" />
-            <circle cx="214" cy="126" r="4" />
-            <circle cx="197" cy="173" r="4" />
-            <circle cx="143" cy="173" r="4" />
-            <circle cx="121" cy="128" r="4" />
+            <circle cx="170" cy="81" r="4" />
+            <circle cx="231" cy="122" r="4" />
+            <circle cx="208" cy="178" r="4" />
+            <circle cx="134" cy="177" r="4" />
+            <circle cx="106" cy="120" r="4" />
           </g>
           <!-- 軸ラベル -->
           <text x="170" y="58" text-anchor="middle" font-size="13" font-weight="700" fill="#481200">ネズミ</text>
-          <text x="170" y="72" text-anchor="middle" font-size="11" fill="#D32F2F" font-weight="700">73%</text>
+          <text x="170" y="72" text-anchor="middle" font-size="11" fill="#D32F2F" font-weight="700">88%</text>
           <text x="248" y="120" text-anchor="start" font-size="13" font-weight="700" fill="#481200">イタチ</text>
-          <text x="248" y="134" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="248" y="134" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">95%</text>
           <text x="220" y="198" text-anchor="start" font-size="13" font-weight="700" fill="#481200">ハクビシン</text>
-          <text x="220" y="212" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="220" y="212" text-anchor="start" font-size="11" fill="#D32F2F" font-weight="700">95%</text>
           <text x="120" y="198" text-anchor="end" font-size="13" font-weight="700" fill="#481200">アライグマ</text>
-          <text x="120" y="212" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">67%</text>
+          <text x="120" y="212" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">91%</text>
           <text x="92" y="120" text-anchor="end" font-size="13" font-weight="700" fill="#481200">コウモリ</text>
-          <text x="92" y="134" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">60%</text>
+          <text x="92" y="134" text-anchor="end" font-size="11" fill="#D32F2F" font-weight="700">100%</text>
         </svg>
       </div>
     </div>
@@ -481,14 +481,14 @@
         <div class="pest-card__header">
           <div class="pest-card__illust">イラスト</div>
           <div class="pest-card__info">
-            <p class="pest-card__name">ネズミ</p>
+            <p class="pest-card__name">コウモリ</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge danger">A 危険</span>
-              <span class="pest-card__percent danger">73%</span>
+              <span class="pest-card__percent danger">100%</span>
             </div>
           </div>
         </div>
-        <p class="pest-card__desc">わずか1.5cmの隙間から侵入。配線をかじり、火災の原因になることもあります。</p>
+        <p class="pest-card__desc">1cmの隙間から侵入。糞による感染症のリスクがあります。通気口や屋根の隙間が主な侵入口です。</p>
       </div>
 
       <div class="pest-card">
@@ -498,11 +498,11 @@
             <p class="pest-card__name">イタチ</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge danger">A 危険</span>
-              <span class="pest-card__percent danger">67%</span>
+              <span class="pest-card__percent danger">95%</span>
             </div>
           </div>
         </div>
-        <p class="pest-card__desc">3cmの隙間から侵入。強烈な糞尿のにおいを残します。</p>
+        <p class="pest-card__desc">3cmの隙間から侵入。強烈な糞尿のにおいを残し、断熱材を巣にします。</p>
       </div>
 
       <div class="pest-card">
@@ -512,7 +512,7 @@
             <p class="pest-card__name">ハクビシン</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge danger">A 危険</span>
-              <span class="pest-card__percent danger">67%</span>
+              <span class="pest-card__percent danger">95%</span>
             </div>
           </div>
         </div>
@@ -526,7 +526,7 @@
             <p class="pest-card__name">アライグマ</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge danger">A 危険</span>
-              <span class="pest-card__percent danger">67%</span>
+              <span class="pest-card__percent danger">91%</span>
             </div>
           </div>
         </div>
@@ -537,14 +537,14 @@
         <div class="pest-card__header">
           <div class="pest-card__illust">イラスト</div>
           <div class="pest-card__info">
-            <p class="pest-card__name">コウモリ</p>
+            <p class="pest-card__name">ネズミ</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge danger">A 危険</span>
-              <span class="pest-card__percent danger">60%</span>
+              <span class="pest-card__percent danger">88%</span>
             </div>
           </div>
         </div>
-        <p class="pest-card__desc">1cmの隙間から侵入。糞による感染症のリスクがあります。</p>
+        <p class="pest-card__desc">わずか1.5cmの隙間から侵入。配線をかじり、火災の原因になることもあります。</p>
       </div>
 
       <!-- Cレベルの場合（参考表示） -->
@@ -556,7 +556,7 @@
             <p class="pest-card__name">コウモリ</p>
             <div class="pest-card__meta">
               <span class="pest-card__badge safe">C 安全</span>
-              <span class="pest-card__percent safe">7%</span>
+              <span class="pest-card__percent safe">11%</span>
             </div>
           </div>
         </div>
@@ -624,6 +624,7 @@
       <span class="color-chip" style="background:#F9A825;"></span>中リスク（25〜49%）
       <span class="color-chip" style="background:#388E3C;"></span>低リスク（24%以下）
     </td></tr>
+    <tr><th>計算式</th><td>総合リスク% = min(100, round((5害獣の合計ポイント &divide; 107) &times; 100))<br>※ 107 = 各害獣の最大値の合計（25+21+21+22+18）</td></tr>
     <tr><th>文言</th><td>リスクレベルに応じて変動<br>高: 「害獣が侵入しやすい環境です。早めの対策をおすすめします。」<br>中: 「いくつかのリスク要因があります。予防対策をご検討ください。」<br>低: 「現時点でのリスクは低めです。予防的な確認をおすすめします。」</td></tr>
   </table>
 
@@ -661,6 +662,15 @@
     <tr><th>フォームボタン</th><td><span class="color-chip" style="background:#3AAD3F;"></span>#3AAD3F / リンク先: /pestcontrol/form/</td></tr>
     <tr><th>もう一度診断</th><td>アウトラインボタン（ボーダー <span class="color-chip" style="background:#F55C2B;"></span>#F55C2B）→ スタート画面に戻る</td></tr>
     <tr><th>確認事項</th><td>電話番号・フォームURLは反映直前に花光様へ最終確認</td></tr>
+  </table>
+
+  <h3>スコアリング設計（改訂版）</h3>
+  <table>
+    <tr><th>害獣別リスク%</th><td>リスク% = min(100, round((合計ポイント &divide; 害獣別最大値) &times; 100))<br>
+      ネズミ: &divide;25 / イタチ: &divide;21 / ハクビシン: &divide;21 / アライグマ: &divide;22 / コウモリ: &divide;18<br>
+      <strong>→ すべての害獣が理論上100%に到達可能</strong></td></tr>
+    <tr><th>総合リスク%</th><td>min(100, round((5害獣の合計ポイント &divide; 107) &times; 100))<br>107 = 25+21+21+22+18</td></tr>
+    <tr><th>設計意図</th><td>無料調査への誘導が目的。ポイント配分は事実に基づくまま、計算式で最大値を正規化し危機感を与える</td></tr>
   </table>
 </div>
 
